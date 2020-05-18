@@ -1,0 +1,28 @@
+<% if @records.count.positive? %>
+<table>
+  <thead>
+    <tr>
+      <th>Glyph</th>
+      <th>Gloss</th>
+      <th>Joyo</th>
+      <th>JLPT</th>
+      <th>Readings</th>
+      <th>Meanings</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% @records.each do |r| %>
+    <tr>
+      <td><%= r.glyph %></td>
+      <td><%= r.gloss %></td>
+      <td><%= r.joyo_level.label %></td>
+      <td><%= r.jlpt_level.label %></td>
+      <td><%= r.readings %></td>
+      <td><%= r.meanings %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+<% else %>
+No records.
+<% end %>

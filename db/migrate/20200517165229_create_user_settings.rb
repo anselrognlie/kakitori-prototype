@@ -1,0 +1,13 @@
+class CreateUserSettings < ActiveRecord::Migration[6.0]
+  def change
+    create_table :user_settings do |t|
+      t.bigint :user_id, null: false
+      t.string :key, null: false
+      t.string :value
+      t.timestamps
+    end
+
+    add_foreign_key :user_settings, :users
+    add_index :user_settings, %i[user_id key], unique: true
+  end
+end
