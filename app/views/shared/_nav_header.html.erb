@@ -1,0 +1,14 @@
+<nav class='nav_header'>
+<span class='nav_header__user'>
+<% unless @current_user.nil? %>
+<span class='nav_header__user--name'>Welcome, <%= @current_user.username %>!</span>
+<span class='nav_header__user--dropdown'>︾</span>
+<div class='nav_header__user--menu'>
+<%= link_to 'Profile', @current_user %>
+<%= link_to 'Change user', select_user_path %>
+</div>
+<% else %>
+USER_ERROR!
+<% end %>
+</span>
+</nav>
