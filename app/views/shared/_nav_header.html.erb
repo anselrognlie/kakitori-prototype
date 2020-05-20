@@ -1,11 +1,21 @@
 <nav class='nav_header'>
+<span class='nav_header__nav'>
+<%= link_to 'Home', root_path, class: 'nav_header__nav--link' %>
+</span>
 <span class='nav_header__user'>
 <% unless @current_user.nil? %>
-<span class='nav_header__user--name'>Welcome, <%= @current_user.username %>!</span>
-<span class='nav_header__user--dropdown'>︾</span>
-<div class='nav_header__user--menu'>
-<%= link_to 'Profile', @current_user %>
-<%= link_to 'Change user', select_user_path %>
+<div class="dropdown show">
+  <%= link_to "Welcome, #{@current_user.username}!", '#',
+    data: { toggle: 'dropdown' },
+    class: 'btn btn-secondary dropdown-toggle',
+    role: 'button',
+    id: 'userMenuLink',
+    aria: { haspopup: true, expanded: false }
+  %>
+  <div class="dropdown-menu" aria-labelledby="userMenuLink">
+    <%= link_to 'Profile', @current_user, class: 'dropdown-item' %>
+    <%= link_to 'Change user', select_user_path, class: 'dropdown-item' %>
+  </div>
 </div>
 <% else %>
 USER_ERROR!
