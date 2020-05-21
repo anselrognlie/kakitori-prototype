@@ -1,0 +1,4 @@
+<% unless @user.nil? %>
+<p>User: <%= @user.username %> <%= link_to 'Edit', edit_user_path(@user) %></p>
+<p>Last activity: <%= utcdate_display(@user.last_activity) %></p>
+<% end %>

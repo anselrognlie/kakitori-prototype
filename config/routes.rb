@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   resources :user_settings, only: []
-  resources :users, only: %i[index show]
+  resources :users, only: %i[show edit update]
   resources :kanjis, only: %i[index]
   root to: 'kanjis#index'
   get :select_user, to: 'users#select_user', as: :select_user

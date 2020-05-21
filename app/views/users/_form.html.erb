@@ -1,0 +1,10 @@
+<%= form_with model: user do |f| %>
+<div>
+<%= f.label :user, for: :user_id %>
+<%= f.text_field :username, id: :user_id %>
+</div>
+<div>
+<%= f.submit %>
+<%= f.button 'Cancel' %>
+</div>
+<% end %>

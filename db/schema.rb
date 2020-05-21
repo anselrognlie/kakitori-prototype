@@ -55,7 +55,6 @@ ActiveRecord::Schema.define(version: 2020_05_17_165229) do
   create_table "users", force: :cascade do |t|
     t.string "username", null: false
     t.datetime "last_activity", null: false
-    t.boolean "default", default: false, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end

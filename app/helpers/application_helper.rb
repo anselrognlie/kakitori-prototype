@@ -1,4 +1,5 @@
 module ApplicationHelper
-  def current_user_display(user)
+  def utcdate_display(date)
+    date.localtime.strftime('%c')
   end
 end

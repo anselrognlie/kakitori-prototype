@@ -3,8 +3,15 @@
 class User < ApplicationRecord
   has_many :user_settings
 
-  def log_activity
+  validates :username, presence: true
+  validates :last_activity, presence: true
+
+  def refresh_activity
     self.last_activity = Time.now.utc
+  end
+
+  def log_activity
+    refresh_activity
     success = false
 
     begin
@@ -17,15 +24,18 @@ class User < ApplicationRecord
   end
 
   class << self
+    DEFAULT_USERNAME = 'Default User'
+
     def most_recent
-      User.order(last_activity: :desc).limit(1)[0]
+      order(last_activity: :desc).limit(1).first
     end
 
     def make_default
-      user = default_user
+      user = default
       return user unless user.nil?
 
-      user = User.new(username: :default, default: true, last_activity: Time.now.utc)
+      user = User.new(username: DEFAULT_USERNAME)
+      user.refresh_activity
       success = false
 
       begin
@@ -39,8 +49,8 @@ class User < ApplicationRecord
       user
     end
 
-    def default_user
-      User.find_by(default: true)
+    def default
+      most_recent
     end
   end
 end
