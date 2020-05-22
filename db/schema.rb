@@ -61,5 +61,5 @@ ActiveRecord::Schema.define(version: 2020_05_17_165229) do
 
   add_foreign_key "kanjis", "jlpt_levels"
   add_foreign_key "kanjis", "joyo_levels"
-  add_foreign_key "user_settings", "users"
+  add_foreign_key "user_settings", "users", on_delete: :cascade
 end

@@ -7,7 +7,7 @@ class CreateUserSettings < ActiveRecord::Migration[6.0]
       t.timestamps
     end
 
-    add_foreign_key :user_settings, :users
+    add_foreign_key :user_settings, :users, on_delete: :cascade
     add_index :user_settings, %i[user_id key], unique: true
   end
 end
