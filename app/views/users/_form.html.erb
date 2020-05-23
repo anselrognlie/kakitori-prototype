@@ -1,4 +1,12 @@
 <%= form_with model: user do |f| %>
+<% if users_show_button(buttons, :delete) %>
+<% if user.id %>
+<%= link_to 'Delete', user,
+  method: :delete,
+  class: 'btn btn-danger',
+  data: { confirm: "Are you sure you want to delete user #{user.username}?" } %>
+<% end %>
+<% end %>
 <div>
 <%= f.label :user, for: :user_id %>
 <%= f.text_field :username, id: :user_id %>

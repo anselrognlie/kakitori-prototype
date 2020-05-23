@@ -5,36 +5,43 @@ class UsersController < ApplicationController
 
   def show; end
 
+  def edit
+    user = User.find_by_id(id_params)
+    if user.nil?
+      flash.now[:error] = 'Unable to find user.'
+      render_pick(User.new)
+      return
+    end
+
+    @user = user
+  end
+
   def pick
-    @users = User.all.order(username: :asc)
-    @user = User.new
+    render_pick(User.new)
   end
 
   def create
-    @user = User.new(model_params)
+    user = User.new(model_params)
 
-    if @user.save
-      flash.now[:success] = "Created user #{@user.username}."
-      @user = User.new
+    if user.save
+      flash.now[:success] = "Created user #{user.username}."
+      user = User.new
     else
       flash.now[:warning] = 'User creation failed.'
     end
 
-    @users = User.all.order(username: :asc)
-    render :pick
+    render_pick(user)
   end
 
   def select
     user = User.find_by_id(id_params)
     if user.nil?
-      flash[:error] = 'Unable to find selected user.'
+      flash.now[:error] = 'Unable to find selected user.'
     else
       self.current_user = user
     end
 
-    @user = User.new
-    @users = User.all.order(username: :asc)
-    render :pick
+    render_pick(User.new)
   end
 
   def update
@@ -62,7 +69,26 @@ class UsersController < ApplicationController
     end
   end
 
+  def destroy
+    user = User.find_by_id(id_params)
+    if user.nil?
+      flash.now[:error] = 'Unable to find user for deletion.'
+    elsif user.destroy
+      flash.now[:success] = "Deleted user #{user.username}."
+    else
+      flash.now[:error] = "Failed to delete user #{user.username}."
+    end
+
+    render_pick(User.new)
+  end
+
   private
+
+  def render_pick(current_user)
+    @user = current_user
+    @users = User.all.order(username: :asc)
+    render :pick
+  end
 
   def apply_changes(user, params)
     username = params[:username]&.strip

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
-  before_action :update_current_user
+  before_action :update_current_user, :prepare_alert
 
   def update_current_user
     user = current_user
@@ -10,6 +10,10 @@ class ApplicationController < ActionController::Base
   rescue UserError => e
     flash[:error] = e.message
     redirect_to error_path
+  end
+
+  def prepare_alert
+    @alert = AlertTypes.new(flash)
   end
 
   def current_user
@@ -42,9 +46,7 @@ class ApplicationController < ActionController::Base
 
   def make_default_user
     user = User.make_default
-    unless user.nil?
-      self.current_user = user unless user.nil?
-      return user
-    end
+    self.current_user = user unless user.nil?
+    user
   end
 end

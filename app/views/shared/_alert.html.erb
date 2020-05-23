@@ -1,0 +1,16 @@
+    <% if alert.status? %>
+    <section class="alert__container">
+    <% alert.each do |status, message| %>
+      <div class="alert alert-<%= status %>">
+        <%= message %>
+        <% if alert.details? %>
+          <ul>
+          <% alert.details do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+          </ul>
+        <% end %>
+      </div>
+    <% end %>
+    </section>
+    <% end %>
