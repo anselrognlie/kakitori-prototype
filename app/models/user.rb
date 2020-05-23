@@ -6,6 +6,12 @@ class User < ApplicationRecord
   validates :username, presence: true
   validates :last_activity, presence: true
 
+  def initialize(args = nil)
+    super(args)
+    # self.last_activity = Time.new(0).utc
+    refresh_activity
+  end
+
   def refresh_activity
     self.last_activity = Time.now.utc
   end

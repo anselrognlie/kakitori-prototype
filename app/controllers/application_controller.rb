@@ -19,8 +19,8 @@ class ApplicationController < ActionController::Base
     # rehydrate the current user
     id = session[:user_id]
     unless id.nil?
-      user = User.find_by_id(id)
-      return nil if user.nil?
+      @current_user = User.find_by_id(id)
+      return @current_user
     end
 
     # get the most recent user

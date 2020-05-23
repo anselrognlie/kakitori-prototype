@@ -4,7 +4,11 @@
 <%= f.text_field :username, id: :user_id %>
 </div>
 <div>
+<% if users_show_button(buttons, :submit) %>
 <%= f.submit %>
+<% end %>
+<% if users_show_button(buttons, :cancel) %>
 <%= f.button 'Cancel' %>
+<% end %>
 </div>
 <% end %>

@@ -1,0 +1,12 @@
+<h3>Pick a user</h3>
+
+<h4>Available users:</h4>
+<ul>
+  <% @users.each do |user| %>
+  <li><%= user != @current_user ?
+    link_to(user.username, select_user_path(user)) :
+    "#{user.username} (current)" %></li>
+  <% end %>
+</ul>
+
+<%= users_form user: @user, buttons: %i[submit] %>
