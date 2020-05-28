@@ -80,5 +80,7 @@ group :test do
 end
 
 group :development do
+  gem 'httparty'
   gem 'nokogiri'
+  gem 'rubyzip', '>= 1.0.0'
 end
