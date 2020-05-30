@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-module KVG
+module KTL
   class StepWriter
     class << self
-      def log(msg, long_running = false, &block)
-        init(msg, long_running, block)
+      def log(msg, long: false, done_msg: nil, error_msg: nil, &block)
+        init(msg, long, done_msg, error_msg, block)
         print @msg
         wait_for_task
         process_block
@@ -12,13 +12,13 @@ module KVG
 
       def done
         join
-        puts ' done.' if @pending
+        puts @done_msg ? " #{@done_msg}" : ' done.' if @pending
         @pending = false
       end
 
       def error
         join
-        puts ' error!' if @pending
+        puts @error_msg ? " #{@error_msg}" : ' error!' if @pending
         @pending = false
       end
 
@@ -26,17 +26,19 @@ module KVG
 
       TWIRL = %w[- \\ | /].freeze
 
-      def init(msg, long_running, block)
+      def init(msg, long, done_msg, error_msg, block)
         @msg = msg
         @pending = true
-        @long_running = long_running
+        @long = long
         @done = false
         @twirl = 0
+        @done_msg = done_msg
+        @error_msg = error_msg
         @block = block
       end
 
       def wait_for_task
-        return unless @long_running
+        return unless @long
 
         print " #{twirl}"
         @thread = Thread.fork do

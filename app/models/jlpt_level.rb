@@ -1,33 +1,31 @@
 # frozen_string_literal: true
 
-class JlptLevel < SeededEnumRecord
-  self.table_name = 'jlpt_levels'
+class JlptLevel
+  attr_reader :id, :name
+
+  def initialize(id, name)
+    @id = id
+    @name = name
+  end
 
   class << self
     # rubocop: disable Metrics/MethodLength
-    def seed_db
-      results = nil
-      seed do
-        results = JlptLevel.create(
-          [
-            { id: JlptLevelEnum::UNDEF, label: 'invalid' },
-            { id: JlptLevelEnum::TEN, label: '10' },
-            { id: JlptLevelEnum::NINE, label: '9' },
-            { id: JlptLevelEnum::EIGHT, label: '8' },
-            { id: JlptLevelEnum::SEVEN, label: '7' },
-            { id: JlptLevelEnum::SIX, label: '6' },
-            { id: JlptLevelEnum::FIVE, label: '5' },
-            { id: JlptLevelEnum::FOUR, label: '4' },
-            { id: JlptLevelEnum::THREE, label: '3' },
-            { id: JlptLevelEnum::TWO_AND_A_HALF, label: '2.5' },
-            { id: JlptLevelEnum::TWO, label: '2' },
-            { id: JlptLevelEnum::ONE_AND_A_HALF, label: '1.5' },
-            { id: JlptLevelEnum::ONE, label: '1' }
-          ]
-        )
-      end
-
-      results
+    def all
+      @all ||= [
+        JlptLevel.new(JlptLevelEnum::UNDEF, 'invalid'),
+        JlptLevel.new(JlptLevelEnum::TEN, '10'),
+        JlptLevel.new(JlptLevelEnum::NINE, '9'),
+        JlptLevel.new(JlptLevelEnum::EIGHT, '8'),
+        JlptLevel.new(JlptLevelEnum::SEVEN, '7'),
+        JlptLevel.new(JlptLevelEnum::SIX, '6'),
+        JlptLevel.new(JlptLevelEnum::FIVE, '5'),
+        JlptLevel.new(JlptLevelEnum::FOUR, '4'),
+        JlptLevel.new(JlptLevelEnum::THREE, '3'),
+        JlptLevel.new(JlptLevelEnum::TWO_AND_A_HALF, '2.5'),
+        JlptLevel.new(JlptLevelEnum::TWO, '2'),
+        JlptLevel.new(JlptLevelEnum::ONE_AND_A_HALF, '1.5'),
+        JlptLevel.new(JlptLevelEnum::ONE, '1')
+      ]
     end
     # rubocop: enable Metrics/MethodLength
   end

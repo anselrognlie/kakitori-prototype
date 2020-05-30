@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module KVG
+module KTL
   class LinePrinter
     def print(str)
       line = "\r#{str}"
@@ -37,27 +37,39 @@ module KVG
       start
     end
 
-    def start(count: 0, template: '')
+    def start(count: 0, template: '', every: 1)
       @step = 0
       @step_count = count
       @template = template
+      @every = every
+      @last_update = 0
+      @msg = nil
     end
 
-    def next_step(msg)
+    def next_step(msg = nil)
+      @msg = msg
       @step += 1
-      line = format(
-        @template, step: msg, num: @step, total: @step_count,
-                   percent: step_percent
-      )
-      @printer.print(line)
+      return if @step < (@last_update + @every)
+
+      write_step
     end
 
     def done
+      write_step
       @printer.done
       start
     end
 
     private
+
+    def write_step
+      @last_update = @step
+      line = format(
+        @template, step: @msg, num: @step, total: @step_count,
+                   percent: step_percent
+      )
+      @printer.print(line)
+    end
 
     def step_percent
       @step_count.zero? ? 0 : (@step * 100.0 / @step_count).round

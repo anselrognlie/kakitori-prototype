@@ -1,48 +1,58 @@
 # frozen_string_literal: true
 
 require_relative 'kanjidic_document'
+require_relative 'step_writer'
+require_relative 'status_writer'
 
-# rubocop: disable Metrics/AbcSize, Metrics/MethodLength
-def load_kanjidic
-  document = KanjidicDocument.new
-  parser = Nokogiri::XML::SAX::Parser.new(document)
-  puts 'parsing XML...'
-  File.open('db/seed_data/kanjidic2.xml') do |f|
-    parser.parse(f)
-  end
+module KTL
+  module_function
 
-  # valid_records = document.records.reject do |r|
-  #   r.readings.empty? || r.meanings.empty?
-  # end
+  STATUS_MSG = 'Saving records... (%<num>d of %<total>d, %<percent>d%%)'
 
-  valid_records = document.records
-
-  fields = valid_records.map do |r|
-    {
-      glyph: r.literal,
-      meanings: r.meanings.join(', '),
-      readings: r.readings.join(', '),
-      grade: r.grade,
-      strokes: r.stroke_count
-    }
-  end
-
-  failed = []
-  puts 'loading in DB (this may take a while)...'
-  Kanji.transaction do
-    Kanji.create(fields).each do |k|
-      next if k.errors.empty?
-
-      failed << k
+  # rubocop: disable Metrics/AbcSize, Metrics/MethodLength
+  def main
+    document = KanjidicDocument.new
+    parser = Nokogiri::XML::SAX::Parser.new(document)
+    StepWriter.log('Parsing XML...', long: true) do
+      File.open('db/seed_data/kanjidic2.xml') do |f|
+        parser.parse(f)
+        true
+      rescue KanjidicError
+        false
+      end
     end
-  end
 
-  if failed.empty?
-    puts 'success'
-  else
-    puts "completed with #{failed.count} failures."
+    valid_records = document.records
+
+    fields = valid_records.map do |r|
+      {
+        glyph: r.literal,
+        meanings: r.meanings.join(', '),
+        readings: r.readings.join(', '),
+        grade: r.grade,
+        strokes: r.stroke_count
+      }
+    end
+
+    failed = []
+    writer = StatusWriter.new
+    writer.start(count: fields.size, template: STATUS_MSG, every: 100)
+    Kanji.transaction do
+      fields.each do |rec|
+        writer.next_step
+        k = Kanji.create(rec)
+        next if k.errors.empty?
+
+        failed << k
+      end
+    end
+    writer.done
+
+    return if failed.empty?
+
+    puts "Completed with #{failed.count} failures."
   end
+  # rubocop: enable Metrics/AbcSize, Metrics/MethodLength
 end
-# rubocop: enable Metrics/AbcSize, Metrics/MethodLength
 
-load_kanjidic
+KTL.main

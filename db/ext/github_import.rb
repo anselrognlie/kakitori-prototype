@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module KVG
+module KTL
   class GithubApi
     include HTTParty
 

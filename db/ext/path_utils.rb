@@ -2,7 +2,7 @@
 
 require 'fileutils'
 
-module KVG
+module KTL
   class PathUtils
     class << self
       def ensure_path(path)

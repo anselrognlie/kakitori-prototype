@@ -5,7 +5,7 @@ require_relative 'path_utils'
 require_relative 'kanji_archive'
 require_relative 'github_import'
 
-module KVG
+module KTL
   TEMP_DIR = 'tmp_kvg'
   TEMP_ARCHIVE = 'main.zip'
 
@@ -36,7 +36,7 @@ module KVG
   # rubocop: enable Metrics/MethodLength
 end
 
-KVG.main
+KTL.main
 
 # StepWriter.log('Counting up...', true) do
 #   100_000_000.times {}

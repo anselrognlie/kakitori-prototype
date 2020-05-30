@@ -6,7 +6,7 @@ require_relative 'status_writer'
 require_relative 'step_writer'
 require_relative 'path_utils'
 
-module KVG
+module KTL
   class KanjiArchive
     STATUS_MSG = 'Extracting %<step>s (%<num>d of %<total>d, %<percent>d%%)'
 
