@@ -44,6 +44,7 @@ class UsersController < ApplicationController
     render_pick(User.new)
   end
 
+  # rubocop: disable Metrics/MethodLength, Metrics/AbcSize
   def update
     @user = User.find_by_id(id_params)
     if @user.nil?
@@ -61,13 +62,13 @@ class UsersController < ApplicationController
 
     if @user.save
       self.current_user = @user
-      flash[:success] = 'User updated.'
-      # redirect_to @user
+      flash.now[:success] = 'User updated.'
       render :show
     else
       render :edit
     end
   end
+  # rubocop: enable Metrics/MethodLength, Metrics/AbcSize
 
   def destroy
     user = User.find_by_id(id_params)

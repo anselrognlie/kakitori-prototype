@@ -15,8 +15,8 @@
     <tr>
       <td><%= r.glyph %></td>
       <td><%= r.gloss %></td>
-      <td><%= r.joyo_level.label %></td>
-      <td><%= r.jlpt_level.label %></td>
+      <td><%= JoyoLevel.name(r.joyo_level_id) %></td>
+      <td><%= JlptLevel.name(r.jlpt_level_id) %></td>
       <td><%= r.readings %></td>
       <td><%= r.meanings %></td>
     </tr>

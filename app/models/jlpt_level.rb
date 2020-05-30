@@ -1,13 +1,6 @@
 # frozen_string_literal: true
 
-class JlptLevel
-  attr_reader :id, :name
-
-  def initialize(id, name)
-    @id = id
-    @name = name
-  end
-
+class JlptLevel < NamedEnum
   class << self
     # rubocop: disable Metrics/MethodLength
     def all

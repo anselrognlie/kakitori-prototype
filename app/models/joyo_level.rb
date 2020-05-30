@@ -1,13 +1,6 @@
 # frozen_string_literal: true
 
-class JoyoLevel
-  attr_reader :id, :name
-
-  def initialize(id, name)
-    @id = id
-    @name = name
-  end
-
+class JoyoLevel < NamedEnum
   class << self
     def all
       @all ||= [
