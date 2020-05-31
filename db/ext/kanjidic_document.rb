@@ -138,6 +138,7 @@ module KTL
       )
 
       # print "#{@records.count + 1}: #{record.literal},"
+      return if @readings.empty? && @meanings.empty?
 
       @records << record
     end
