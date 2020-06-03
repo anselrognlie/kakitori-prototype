@@ -2,7 +2,7 @@
 
 require_relative 'step_writer'
 require_relative 'path_utils'
-require_relative 'kanji_archive'
+require_relative 'zip_archive'
 require_relative 'github_import'
 
 module KTL
@@ -28,7 +28,7 @@ module KTL
       file.write response.body
     end
 
-    archive = KanjiArchive.new(out_archive, to: TEMP_DIR)
+    archive = ZipArchive.new(out_archive, to: TEMP_DIR)
     archive.extract
   ensure
     PathUtils.clean_path(TEMP_DIR)

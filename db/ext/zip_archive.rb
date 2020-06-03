@@ -7,7 +7,7 @@ require_relative 'step_writer'
 require_relative 'path_utils'
 
 module KTL
-  class KanjiArchive
+  class ZipArchive
     STATUS_MSG = 'Extracting %<step>s (%<num>d of %<total>d, %<percent>d%%)'
 
     def initialize(filename, writer = nil, to: nil)
