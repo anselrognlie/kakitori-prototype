@@ -15,6 +15,8 @@ class CreateKanjis < ActiveRecord::Migration[6.0]
       t.integer :strokes, null: false, default: 0
       t.timestamps
     end
+
+    add_index :kanjis, :glyph, unique: true
   end
   # rubocop: enable Metrics/MethodLength
 end

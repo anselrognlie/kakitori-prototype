@@ -27,6 +27,7 @@ ActiveRecord::Schema.define(version: 2020_05_17_165229) do
     t.integer "strokes", default: 0, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["glyph"], name: "index_kanjis_on_glyph", unique: true
   end
 
   create_table "user_settings", force: :cascade do |t|

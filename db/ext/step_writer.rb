@@ -14,12 +14,14 @@ module KTL
         join
         puts @done_msg ? " #{@done_msg}" : ' done.' if @pending
         @pending = false
+        true
       end
 
       def error
         join
         puts @error_msg ? " #{@error_msg}" : ' error!' if @pending
         @pending = false
+        false
       end
 
       private
@@ -67,13 +69,11 @@ module KTL
       end
 
       def process_block
-        return unless @block
+        return true unless @block
 
-        if @block.call
-          done
-        else
-          error
-        end
+        result = @block.call
+        result ? done : error
+        result
       end
     end
   end

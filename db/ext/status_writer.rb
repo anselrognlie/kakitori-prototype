@@ -37,13 +37,13 @@ module KTL
       start
     end
 
-    def start(count: 0, template: '', every: 1)
-      @step = 0
+    def start(count: 0, template: '', every: 1, &block)
+      init
       @step_count = count
       @template = template
       @every = every
-      @last_update = 0
-      @msg = nil
+      @block = block
+      process_block
     end
 
     def next_step(msg = nil)
@@ -57,10 +57,19 @@ module KTL
     def done
       write_step
       @printer.done
-      start
+    end
+
+    def error
+      @printer.done
     end
 
     private
+
+    def init
+      @step = 0
+      @last_update = 0
+      @msg = nil
+    end
 
     def write_step
       @last_update = @step
@@ -73,6 +82,14 @@ module KTL
 
     def step_percent
       @step_count.zero? ? 0 : (@step * 100.0 / @step_count).round
+    end
+
+    def process_block
+      return true unless @block
+
+      result = @block.call
+      result ? done : error
+      result
     end
   end
 end
