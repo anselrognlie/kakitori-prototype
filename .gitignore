@@ -7,7 +7,7 @@
 /spec/reports/
 /test/tmp/
 /test/version_tmp/
-/tmp_kvg/
+/tmp_import/
 
 # Ignore all logfiles and tempfiles.
 /log/*
