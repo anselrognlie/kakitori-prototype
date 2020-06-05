@@ -11,19 +11,30 @@ class NamedEnum
   class << self
     def find_by_id(id)
       @lookup ||= build_lookup
-      @lookup[id]
+      @lookup[:id][id]
     end
 
     def build_lookup
-      lookup = {}
+      id_lookup = {}
+      name_lookup = {}
       all.each do |rec|
-        lookup[rec.id] = rec
+        id_lookup[rec.id] = rec
+        name_lookup[rec.name] = rec
       end
-      lookup
+      { id: id_lookup, name: name_lookup }
     end
 
     def name(id)
       find_by_id(id).name
+    end
+
+    def find_by_name(name)
+      @lookup ||= build_lookup
+      @lookup[:name][name]
+    end
+
+    def id(name)
+      find_by_name(name).id
     end
   end
 end
