@@ -53,6 +53,7 @@ module KTL
       @path.last == path
     end
 
+    # rubocop: disable Metrics/AbcSize
     def make_start_handlers
       @start_handlers = {
         character: ->(name, _attrs) { start_character(name) },
@@ -60,10 +61,13 @@ module KTL
         grade: ->(name, _attrs) { push_path(to: name, from: :character) },
         stroke_count: ->(name, _attrs) { push_path(to: name, from: :character) },
         reading: ->(name, attrs) { start_reading(name, attrs) },
-        meaning: ->(name, attrs) { start_meaning(name, attrs) }
+        meaning: ->(name, attrs) { start_meaning(name, attrs) },
+        nanori: ->(name, _attrs) { push_path(to: name, from: :character) }
       }.freeze
     end
+    # rubocop: enable Metrics/AbcSize
 
+    # rubocop: disable Metrics/AbcSize
     def make_end_handlers
       @end_handlers = {
         character: ->(name) { end_character(name) },
@@ -71,9 +75,11 @@ module KTL
         grade: ->(name) { pop_path(from: name) },
         stroke_count: ->(name) { pop_path(from: name) },
         reading: ->(name) { pop_path(from: name) },
-        meaning: ->(name) { pop_path(from: name) }
+        meaning: ->(name) { pop_path(from: name) },
+        nanori: ->(name) { pop_path(from: name) }
       }.freeze
     end
+    # rubocop: enable Metrics/AbcSize
 
     # rubocop: disable Metrics/MethodLength, Metrics/AbcSize
     def make_character_handlers
@@ -85,9 +91,11 @@ module KTL
         { condition: -> { in_path?(:stroke_count) },
           handler: ->(str) { @stroke_count = str.to_i } },
         { condition: -> { in_path?(:reading) },
-          handler: ->(str) { @readings << str if @valid_reading } },
+          handler: ->(str) { handle_reading(str) } },
         { condition: -> { in_path?(:meaning) },
-          handler: ->(str) { @meanings << str if @valid_meaning } }
+          handler: ->(str) { @meanings << str if @valid_meaning } },
+        { condition: -> { in_path?(:nanori) },
+          handler: ->(str) { @readings << { type: 'nanori', reading: str } } }
       ].freeze
     end
     # rubocop: enable Metrics/MethodLength, Metrics/AbcSize
@@ -118,7 +126,18 @@ module KTL
 
     def start_reading(name, attrs)
       push_path(to: name, from: :character)
-      @valid_reading = attrs.assoc('r_type')&.at(1)&.start_with?('ja_')
+      @valid_reading, @reading_type = validate_reading_attrs(attrs)
+    end
+
+    def validate_reading_attrs(attrs)
+      all_type = attrs.assoc('r_type')&.at(1)
+      valid = all_type&.start_with?('ja_')
+      type = valid ? all_type[3..] : nil
+      [valid, type]
+    end
+
+    def handle_reading(str)
+      @readings << { type: @reading_type, reading: str } if @valid_reading
     end
 
     def start_meaning(name, attrs)

@@ -7,12 +7,14 @@ require_relative 'path_utils'
 require_relative 'data_source_config'
 require 'zlib'
 
+# rubocop: disable Metrics/ModuleLength
 module KTL
   module_function
 
   STATUS_MSG = 'Saving records... (%<num>d of %<total>d, %<percent>d%%)'
   TEMP_DIR = 'tmp_import'
   TEMP_ARCHIVE = 'kanjidic.xml.gz'
+  SCALAR_FIELDS = %i[glyph grade strokes].freeze
 
   def extract(path, status: nil)
     document = KanjidicDocument.new
@@ -37,29 +39,74 @@ module KTL
     records.map do |r|
       {
         glyph: r.literal,
-        meanings: r.meanings.join(', '),
-        readings: r.readings.join(', '),
+        meanings: r.meanings,
+        readings: r.readings,
         grade: r.grade,
         strokes: r.stroke_count
       }
     end
   end
 
-  def commit_record(record, failed)
-    k = Kanji.create(record)
-    k.errors.empty? ? failed : failed << k
+  def normalize_meaning(meaning)
+    meaning.downcase.gsub(/[^a-z0-9]/, '')
+  end
+
+  def commit_meanings(record, meanings)
+    meanings.each do |meaning|
+      normalized = normalize_meaning(meaning)
+      KanjidicMeaning.create(
+        {
+          kanji: record,
+          meaning: meaning,
+          normalized: normalized
+        }
+      )
+    end
+  end
+
+  def normalize_reading(reading)
+    Moji.kata_to_hira(reading).gsub(/./) { |c| Moji.type?(c, Moji::HIRA) ? c : '' }
+  end
+
+  def commit_readings(record, readings)
+    readings.each do |reading|
+      normalized = normalize_reading(reading[:reading])
+      type = ReadingType.id(reading[:type])
+      KanjidicReading.create(
+        {
+          kanji: record, reading: reading[:reading],
+          normalized: normalized, type: type
+        }
+      )
+    end
+  end
+
+  def commit_record(record)
+    k = KanjidicMain.new(record.slice(*SCALAR_FIELDS))
+    saved = k.save
+    if saved
+      commit_meanings(k, record[:meanings])
+      commit_readings(k, record[:readings])
+    end
+
+    [k, saved]
   rescue ActiveRecord::ActiveRecordError
-    failed << k
+    [k, false]
+  end
+
+  def commit_transacted_record(record, failed)
+    KanjidicMain.transaction do
+      k, saved = commit_record(record)
+      saved ? failed : failed << k
+    end
   end
 
   def commit(records, message: nil, every: 1)
     writer = StatusWriter.new
     writer.start(count: records.size, template: message, every: every) do
-      Kanji.transaction do
-        records.reduce([]) do |failed, rec|
-          writer.next_step
-          commit_record(rec, failed)
-        end
+      records.reduce([]) do |failed, rec|
+        writer.next_step
+        commit_transacted_record(rec, failed)
       end
     end
   end
@@ -98,10 +145,12 @@ module KTL
     return if failed.empty?
 
     puts "Completed with #{failed.count} failures."
+    warn failed.map(&:glyph).join(',')
   ensure
     PathUtils.clean_path(TEMP_DIR)
   end
   # rubocop: enable Metrics/MethodLength, Metrics/AbcSize
 end
+# rubocop: enable Metrics/ModuleLength
 
 KTL.main
