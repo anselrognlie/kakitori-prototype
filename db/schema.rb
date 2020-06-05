@@ -10,24 +10,37 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_17_165229) do
+ActiveRecord::Schema.define(version: 2020_06_04_220405) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "kanjis", force: :cascade do |t|
-    t.string "glyph", default: "", null: false
-    t.string "gloss", default: "", null: false
-    t.string "mnemonic", default: "", null: false
-    t.string "readings", default: "", null: false
-    t.string "meanings", default: "", null: false
-    t.integer "joyo_level_id", default: 0, null: false
-    t.integer "jlpt_level_id", default: 0, null: false
+  create_table "kanjidic_mains", force: :cascade do |t|
+    t.string "glyph", null: false
     t.integer "grade", default: 0, null: false
-    t.integer "strokes", default: 0, null: false
+    t.integer "strokes", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["glyph"], name: "index_kanjis_on_glyph", unique: true
+    t.index ["glyph"], name: "index_kanjidic_mains_on_glyph", unique: true
+  end
+
+  create_table "kanjidic_meanings", force: :cascade do |t|
+    t.string "meaning", null: false
+    t.string "normalized", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "kanjidic_main_id"
+    t.index ["kanjidic_main_id"], name: "index_kanjidic_meanings_on_kanjidic_main_id"
+  end
+
+  create_table "kanjidic_readings", force: :cascade do |t|
+    t.string "reading", null: false
+    t.string "normalized", null: false
+    t.integer "type", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "kanjidic_main_id"
+    t.index ["kanjidic_main_id"], name: "index_kanjidic_readings_on_kanjidic_main_id"
   end
 
   create_table "user_settings", force: :cascade do |t|
@@ -46,5 +59,7 @@ ActiveRecord::Schema.define(version: 2020_05_17_165229) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  add_foreign_key "kanjidic_meanings", "kanjidic_mains"
+  add_foreign_key "kanjidic_readings", "kanjidic_mains"
   add_foreign_key "user_settings", "users", on_delete: :cascade
 end
