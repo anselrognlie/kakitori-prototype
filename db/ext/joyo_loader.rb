@@ -64,30 +64,30 @@ module KTL
 
   # rubocop: disable Metrics/MethodLength, Metrics/AbcSize
   def main
-    # PathUtils.clean_path(TEMP_DIR, recreate: true)
+    PathUtils.clean_path(TEMP_DIR, recreate: true)
 
-    # data_source = DataSourceConfig.new
-    # joyo_url = nil
-    # StepWriter.log('Loading import locations...') do
-    #   config = data_source.config
-    #   joyo_url = config&.dig(:kakitori, :sources, :joyo, :url)
-    # end
+    data_source = DataSourceConfig.new
+    joyo_url = nil
+    StepWriter.log('Loading import locations...') do
+      config = data_source.config
+      joyo_url = config&.dig(:kakitori, :sources, :joyo, :url)
+    end
 
-    # return unless joyo_url
+    return unless joyo_url
 
-    # response = nil
-    # StepWriter.log('Downloading joyo data...', long: true) do
-    #   response = HTTParty.get(joyo_url)
-    # end
+    response = nil
+    StepWriter.log('Downloading joyo data...', long: true) do
+      response = HTTParty.get(joyo_url)
+    end
 
-    # return unless response
+    return unless response
 
     out_archive = File.join(TEMP_DIR, TEMP_ARCHIVE)
-    # StepWriter.log('Writing to disk...', long: true) do
-    #   File.open(out_archive, 'wb') do |file|
-    #     file.write response.body
-    #   end
-    # end
+    StepWriter.log('Writing to disk...', long: true) do
+      File.open(out_archive, 'wb') do |file|
+        file.write response.body
+      end
+    end
 
     document = JoyoDocument.new
     StepWriter.log('Reading CSV...') do
@@ -108,8 +108,8 @@ module KTL
     return if failed.empty?
 
     puts "Completed with #{failed.count} failures."
-  # ensure
-  #   PathUtils.clean_path(TEMP_DIR)
+  ensure
+    PathUtils.clean_path(TEMP_DIR)
   end
   # rubocop: enable Metrics/MethodLength, Metrics/AbcSize
 end
