@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'csv'
-# require_relative '../app/models/jlpt_level_enum'
-# require_relative '../app/models/joyo_level_enum'
+require 'joyo_level'
+require 'jlpt_level'
 
 module KTL
   class ParsedJoyoRecord
@@ -10,7 +10,7 @@ module KTL
 
     def initialize(*args)
       @glyph = args[0]
-      @gloss = args[3]
+      @gloss = self.class.split_gloss(args[3])
       @joyo = self.class.convert_joyo(args[1])
       @jlpt = self.class.convert_jlpt(args[2])
     end
@@ -71,6 +71,10 @@ module KTL
         end
       end
       # rubocop: enable Metrics/CyclomaticComplexity, Metrics/MethodLength
+
+      def split_gloss(gloss_str)
+        gloss_str.split(/,/).map(&:strip)
+      end
     end
   end
 

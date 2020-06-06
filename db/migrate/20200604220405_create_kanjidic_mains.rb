@@ -14,13 +14,11 @@ class CreateKanjidicMains < ActiveRecord::Migration[6.0]
       t.string :reading, null: false
       t.string :normalized, null: false
       t.integer :type, null: false
-      t.timestamps
     end
 
     create_table :kanjidic_meanings do |t|
       t.string :meaning, null: false
       t.string :normalized, null: false
-      t.timestamps
     end
 
     add_index :kanjidic_mains, :glyph, unique: true
