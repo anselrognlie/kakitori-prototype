@@ -7,8 +7,7 @@ module KTL
   class KanjidicError < StandardError; end
 
   class KanjiRecord
-    attr_reader :literal, :grade, :stroke_count
-    attr_reader :readings, :meanings
+    attr_reader :literal, :grade, :stroke_count, :readings, :meanings
 
     def initialize(literal:, grade:, stroke_count:, readings:, meanings:)
       @literal = literal
