@@ -4,10 +4,10 @@ require 'httparty'
 require 'ostruct'
 
 module KTL
-  module_function
-
   API_KEY = ENV['WK_API_KEY']
   BASE_URL = 'https://api.wanikani.com/v2/'
+
+  module_function
 
   def make_header
     {
@@ -46,7 +46,7 @@ module KTL
       # byebug
 
       results += response['data'].map do |k|
-        OpenStruct.new(level: k['data']['level'], glyph: k['data']['characters'])
+        OpenStruct.new(k['data'])
       end
 
       next_url = response['pages']['next_url']
@@ -63,15 +63,18 @@ module KTL
   end
 
   def main
+    # puts ENV['DATASRC_CONFIG_URL']
+    # puts ENV['WK_API_KEY']
     level = query_user_data.max_level_granted
     # level = 60
     # puts "retrieving data up to level #{level}..."
     # levels = make_level_query(level)
     # puts levels
     level_data = query_subjects(level)
-    level_data.each do |k|
-      puts "#{k.glyph},#{k.level}"
-    end
+    # level_data.each do |k|
+    #   puts "#{k.characters},#{k.level}"
+    # end
+    puts level_data.to_json
   end
 end
 
