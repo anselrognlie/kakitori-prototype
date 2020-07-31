@@ -10,49 +10,40 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_05_224932) do
+ActiveRecord::Schema.define(version: 2020_06_04_220405) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "joyo_glosses", force: :cascade do |t|
-    t.string "gloss", null: false
-    t.string "normalized", null: false
-    t.bigint "kanjidic_main_id"
-    t.index ["kanjidic_main_id"], name: "index_joyo_glosses_on_kanjidic_main_id"
-  end
-
-  create_table "joyo_imports", force: :cascade do |t|
-    t.integer "joyo_level", default: 0, null: false
-    t.integer "jlpt_level", default: 0, null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.bigint "kanjidic_main_id"
-    t.index ["kanjidic_main_id"], name: "index_joyo_imports_on_kanjidic_main_id"
-  end
-
-  create_table "kanjidic_mains", force: :cascade do |t|
+  create_table "kanjidic_import_meanings", force: :cascade do |t|
     t.string "glyph", null: false
-    t.integer "grade", default: 0, null: false
-    t.integer "strokes", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["glyph"], name: "index_kanjidic_mains_on_glyph", unique: true
-  end
-
-  create_table "kanjidic_meanings", force: :cascade do |t|
     t.string "meaning", null: false
     t.string "normalized", null: false
-    t.bigint "kanjidic_main_id"
-    t.index ["kanjidic_main_id"], name: "index_kanjidic_meanings_on_kanjidic_main_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["glyph"], name: "index_kanjidic_import_meanings_on_glyph"
   end
 
-  create_table "kanjidic_readings", force: :cascade do |t|
+  create_table "kanjidic_import_readings", force: :cascade do |t|
+    t.string "glyph", null: false
     t.string "reading", null: false
     t.string "normalized", null: false
-    t.integer "type", null: false
-    t.bigint "kanjidic_main_id"
-    t.index ["kanjidic_main_id"], name: "index_kanjidic_readings_on_kanjidic_main_id"
+    t.string "type", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["glyph"], name: "index_kanjidic_import_readings_on_glyph"
+  end
+
+  create_table "kanjidic_imports", force: :cascade do |t|
+    t.string "glyph", null: false
+    t.string "codepoint", null: false
+    t.integer "grade"
+    t.integer "strokes", null: false
+    t.integer "frequency"
+    t.integer "jlpt_old"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["glyph"], name: "index_kanjidic_imports_on_glyph", unique: true
   end
 
   create_table "user_settings", force: :cascade do |t|
@@ -71,9 +62,7 @@ ActiveRecord::Schema.define(version: 2020_06_05_224932) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  add_foreign_key "joyo_glosses", "kanjidic_mains"
-  add_foreign_key "joyo_imports", "kanjidic_mains"
-  add_foreign_key "kanjidic_meanings", "kanjidic_mains"
-  add_foreign_key "kanjidic_readings", "kanjidic_mains"
+  add_foreign_key "kanjidic_import_meanings", "kanjidic_imports", column: "glyph", primary_key: "glyph"
+  add_foreign_key "kanjidic_import_readings", "kanjidic_imports", column: "glyph", primary_key: "glyph"
   add_foreign_key "user_settings", "users", on_delete: :cascade
 end

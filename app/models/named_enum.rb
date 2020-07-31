@@ -36,5 +36,9 @@ class NamedEnum
     def id(name)
       find_by_name(name).id
     end
+
+    def restrict(name)
+      find_by_name(name)&.name
+    end
   end
 end

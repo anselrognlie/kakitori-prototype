@@ -14,7 +14,8 @@ module KTL
   STATUS_MSG = 'Saving records... (%<num>d of %<total>d, %<percent>d%%)'
   TEMP_DIR = 'tmp_import'
   TEMP_ARCHIVE = 'kanjidic.xml.gz'
-  SCALAR_FIELDS = %i[glyph grade strokes].freeze
+  SCALAR_FIELDS = %i[glyph grade strokes codepoint jlpt_old frequency].freeze
+  OFFLINE = true
 
   def extract(path, status: nil)
     document = KanjidicDocument.new
@@ -35,6 +36,7 @@ module KTL
     end
   end
 
+  # rubocop: disable Metrics/MethodLength
   def pack_records(records)
     records.map do |r|
       {
@@ -42,10 +44,14 @@ module KTL
         meanings: r.meanings,
         readings: r.readings,
         grade: r.grade,
-        strokes: r.stroke_count
+        strokes: r.stroke_count,
+        codepoint: r.codepoint,
+        jlpt_old: r.jlpt,
+        frequency: r.frequency
       }
     end
   end
+  # rubocop: enable Metrics/MethodLength
 
   def normalize_meaning(meaning)
     meaning.downcase.gsub(/[^a-z0-9]/, '')
@@ -54,7 +60,7 @@ module KTL
   def commit_meanings(record, meanings)
     meanings.each do |meaning|
       normalized = normalize_meaning(meaning)
-      KanjidicMeaning.create(
+      KanjidicImportMeaning.create(
         {
           kanji: record,
           meaning: meaning,
@@ -71,8 +77,8 @@ module KTL
   def commit_readings(record, readings)
     readings.each do |reading|
       normalized = normalize_reading(reading[:reading])
-      type = ReadingType.id(reading[:type])
-      KanjidicReading.create(
+      type = ReadingType.restrict(reading[:type])
+      KanjidicImportReading.create(
         {
           kanji: record, reading: reading[:reading],
           normalized: normalized, type: type
@@ -82,7 +88,7 @@ module KTL
   end
 
   def commit_record(record)
-    k = KanjidicMain.new(record.slice(*SCALAR_FIELDS))
+    k = KanjidicImport.new(record.slice(*SCALAR_FIELDS))
     saved = k.save
     if saved
       commit_meanings(k, record[:meanings])
@@ -95,7 +101,7 @@ module KTL
   end
 
   def commit_transacted_record(record, failed)
-    KanjidicMain.transaction do
+    KanjidicImport.transaction do
       k, saved = commit_record(record)
       saved ? failed : failed << k
     end
@@ -111,30 +117,32 @@ module KTL
     end
   end
 
-  # rubocop: disable Metrics/MethodLength, Metrics/AbcSize
+  # rubocop: disable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
   def main
-    PathUtils.clean_path(TEMP_DIR, recreate: true)
-
-    data_source = DataSourceConfig.new
-    kanjidic_url = nil
-    StepWriter.log('Loading import locations...') do
-      config = data_source.config
-      kanjidic_url = config&.dig(:kakitori, :sources, :kanjidic, :url)
-    end
-
-    return unless kanjidic_url
-
-    response = nil
-    StepWriter.log('Downloading kanjidic archive...', long: true) do
-      response = HTTParty.get(kanjidic_url)
-    end
-
-    return unless response
-
+    PathUtils.clean_path(TEMP_DIR, recreate: true) unless OFFLINE
     out_archive = File.join(TEMP_DIR, TEMP_ARCHIVE)
-    StepWriter.log('Writing to disk...', long: true) do
-      File.open(out_archive, 'wb') do |file|
-        file.write response.body
+
+    unless OFFLINE
+      data_source = DataSourceConfig.new
+      kanjidic_url = nil
+      StepWriter.log('Loading import locations...') do
+        config = data_source.config
+        kanjidic_url = config&.dig(:kakitori, :sources, :kanjidic, :url)
+      end
+
+      return unless kanjidic_url
+
+      response = nil
+      StepWriter.log('Downloading kanjidic archive...', long: true) do
+        response = HTTParty.get(kanjidic_url)
+      end
+
+      return unless response
+
+      StepWriter.log('Writing to disk...', long: true) do
+        File.open(out_archive, 'wb') do |file|
+          file.write response.body
+        end
       end
     end
 
@@ -147,9 +155,9 @@ module KTL
     puts "Completed with #{failed.count} failures."
     warn failed.map(&:glyph).join(',')
   ensure
-    PathUtils.clean_path(TEMP_DIR)
+    PathUtils.clean_path(TEMP_DIR) unless OFFLINE
   end
-  # rubocop: enable Metrics/MethodLength, Metrics/AbcSize
+  # rubocop: enable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
 end
 # rubocop: enable Metrics/ModuleLength
 
