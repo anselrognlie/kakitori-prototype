@@ -53,3 +53,4 @@ yarn-debug.log*
 
 .byebug_history
 .env
+/tmp_import/*
