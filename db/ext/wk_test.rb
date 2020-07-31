@@ -71,10 +71,10 @@ module KTL
     # levels = make_level_query(level)
     # puts levels
     level_data = query_subjects(level)
-    # level_data.each do |k|
-    #   puts "#{k.characters},#{k.level}"
-    # end
-    puts level_data.to_json
+    level_data.each do |k|
+      puts "#{k.characters},#{k.level}"
+    end
+    # puts level_data.to_json
   end
 end
 
