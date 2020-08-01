@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_04_220405) do
+ActiveRecord::Schema.define(version: 2020_07_31_090422) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -46,6 +46,23 @@ ActiveRecord::Schema.define(version: 2020_06_04_220405) do
     t.index ["glyph"], name: "index_kanjidic_imports_on_glyph", unique: true
   end
 
+  create_table "kanken_import_glosses", force: :cascade do |t|
+    t.string "glyph", null: false
+    t.string "gloss", null: false
+    t.string "normalized", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["glyph"], name: "index_kanken_import_glosses_on_glyph"
+  end
+
+  create_table "kanken_imports", force: :cascade do |t|
+    t.string "glyph", null: false
+    t.string "level", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["glyph"], name: "index_kanken_imports_on_glyph", unique: true
+  end
+
   create_table "user_settings", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "key", null: false
@@ -64,5 +81,6 @@ ActiveRecord::Schema.define(version: 2020_06_04_220405) do
 
   add_foreign_key "kanjidic_import_meanings", "kanjidic_imports", column: "glyph", primary_key: "glyph"
   add_foreign_key "kanjidic_import_readings", "kanjidic_imports", column: "glyph", primary_key: "glyph"
+  add_foreign_key "kanken_import_glosses", "kanken_imports", column: "glyph", primary_key: "glyph"
   add_foreign_key "user_settings", "users", on_delete: :cascade
 end

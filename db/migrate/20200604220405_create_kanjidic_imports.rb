@@ -31,8 +31,10 @@ class CreateKanjidicImports < ActiveRecord::Migration[6.0]
     add_index :kanjidic_imports, :glyph, unique: true
     add_index :kanjidic_import_readings, :glyph
     add_index :kanjidic_import_meanings, :glyph
-    add_foreign_key :kanjidic_import_readings, :kanjidic_imports, column: :glyph, primary_key: :glyph
-    add_foreign_key :kanjidic_import_meanings, :kanjidic_imports, column: :glyph, primary_key: :glyph
+    add_foreign_key :kanjidic_import_readings, :kanjidic_imports,
+                    column: :glyph, primary_key: :glyph
+    add_foreign_key :kanjidic_import_meanings, :kanjidic_imports,
+                    column: :glyph, primary_key: :glyph
   end
   # rubocop: enable Metrics/MethodLength, Metrics/AbcSize
 end

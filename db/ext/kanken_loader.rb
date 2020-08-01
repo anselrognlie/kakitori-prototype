@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'joyo_document'
+require_relative 'kanken_document'
 require_relative 'step_writer'
 require_relative 'status_writer'
 require_relative 'path_utils'
@@ -11,12 +11,14 @@ module KTL
 
   STATUS_MSG = 'Saving records... (%<num>d of %<total>d, %<percent>d%%)'
   TEMP_DIR = 'tmp_import'
-  TEMP_ARCHIVE = 'joyo.csv'
-  SCALAR_FIELDS = %i[joyo_level jlpt_level].freeze
+  TEMP_ARCHIVE = 'kanken.csv'
+  SCALAR_FIELDS = %i[glyph level].freeze
+  OFFLINE = true
 
-  def commit_record(kanji, record)
-    joyo = JoyoImport.new(record.slice(*SCALAR_FIELDS).merge(kanji: kanji))
-    saved = joyo.save
+  def commit_record(record)
+    kanji = record[:glyph]
+    kanken = KankenImport.new(record.slice(*SCALAR_FIELDS))
+    saved = kanken.save
     commit_glosses(kanji, record[:gloss]) if saved
 
     [record[:glyph], saved]
@@ -31,9 +33,9 @@ module KTL
   def commit_glosses(kanji, glosses)
     glosses.each do |gloss|
       normalized = normalize_gloss(gloss)
-      JoyoGloss.create(
+      KankenImportGloss.create(
         {
-          kanji: kanji, gloss: gloss,
+          glyph: kanji, gloss: gloss,
           normalized: normalized
         }
       )
@@ -41,13 +43,8 @@ module KTL
   end
 
   def commit_record_with_transaction(record, failed)
-    glyph = record[:glyph]
-    kanjis = KanjidicMain.where(glyph: glyph)
-    return failed << glyph unless kanjis.count == 1
-
-    kanji = kanjis.first
-    JoyoImport.transaction do
-      glyph, saved = commit_record(kanji, record)
+    KankenImport.transaction do
+      glyph, saved = commit_record(record)
       saved ? failed : failed << glyph
     end
   end
@@ -62,34 +59,36 @@ module KTL
     end
   end
 
-  # rubocop: disable Metrics/MethodLength, Metrics/AbcSize
+  # rubocop: disable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
   def main
-    PathUtils.clean_path(TEMP_DIR, recreate: true)
-
-    data_source = DataSourceConfig.new
-    joyo_url = nil
-    StepWriter.log('Loading import locations...') do
-      config = data_source.config
-      joyo_url = config&.dig(:kakitori, :sources, :joyo, :url)
-    end
-
-    return unless joyo_url
-
-    response = nil
-    StepWriter.log('Downloading joyo data...', long: true) do
-      response = HTTParty.get(joyo_url)
-    end
-
-    return unless response
-
+    PathUtils.clean_path(TEMP_DIR, recreate: true) unless OFFLINE
     out_archive = File.join(TEMP_DIR, TEMP_ARCHIVE)
-    StepWriter.log('Writing to disk...', long: true) do
-      File.open(out_archive, 'wb') do |file|
-        file.write response.body
+
+    unless OFFLINE
+      data_source = DataSourceConfig.new
+      kanken_url = nil
+      StepWriter.log('Loading import locations...') do
+        config = data_source.config
+        kanken_url = config&.dig(:kakitori, :sources, :kanken, :url)
+      end
+
+      return unless kanken_url
+
+      response = nil
+      StepWriter.log('Downloading kanken data...', long: true) do
+        response = HTTParty.get(kanken_url)
+      end
+
+      return unless response
+
+      StepWriter.log('Writing to disk...', long: true) do
+        File.open(out_archive, 'wb') do |file|
+          file.write response.body
+        end
       end
     end
 
-    document = JoyoDocument.new
+    document = KankenDocument.new
     StepWriter.log('Reading CSV...') do
       document.read(out_archive)
     end
@@ -98,8 +97,7 @@ module KTL
       {
         glyph: r.glyph,
         gloss: r.gloss,
-        joyo_level: r.joyo,
-        jlpt_level: r.jlpt
+        level: r.level
       }
     end
 
@@ -109,9 +107,9 @@ module KTL
 
     puts "Completed with #{failed.count} failures."
   ensure
-    PathUtils.clean_path(TEMP_DIR)
+    PathUtils.clean_path(TEMP_DIR) unless OFFLINE
   end
-  # rubocop: enable Metrics/MethodLength, Metrics/AbcSize
+  # rubocop: enable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
 end
 
 KTL.main
