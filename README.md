@@ -25,7 +25,7 @@ Things you may want to cover:
 
 ## Running importers
 
-rails runner \<script*name>
+rails runner \<script-name>
 
 ## Login Process
 
