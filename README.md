@@ -23,37 +23,40 @@ Things you may want to cover:
 
 * ...
 
-### Running importers
+## Running importers
 
-rails runner <script-name>
+rails runner \<script*name>
 
-### Login Process
+## Login Process
 
-- if no current user
-  - if no user
-    - create 'default' user
-    - make default user the current user
-  - else
-    - select most current user as current user
+* if no current user
+  * if no user
+    * create 'default' user
+    * make default user the current user
+  * else
+    * select most current user as current user
 
 ### Data design
 
-- Kanjidic
-  - glyph
-  - ucs codepoint
-  - meaning list
-  - reading list (on, kun, nanori)
-  - grade
-  - stroke count
-  - frequency
-  - jlpt level (old 4-level system)
+* Kanjidic
+  * glyph
+  * ucs codepoint
+  * meaning list
+  * reading list (on, kun, nanori)
+  * grade
+  * stroke count
+  * frequency
+  * jlpt level (old 4*level system)
 
-- Kanken
-  - glyph
-  - level (only up to 2)
-  - gloss list
-  - representative readings (on, kun)
+* Kanken
+  * glyph
+  * gloss list
+  * level (only up to 2)
 
-- WaniKani
-  - glyph
-  - level
+* WaniKani
+  * glyph
+  * level
+
+* JLPT (new)
+  * glyph
+  * level
