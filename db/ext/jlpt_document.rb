@@ -3,28 +3,21 @@
 require 'csv'
 
 module KTL
-  class ParsedKankenRecord
-    attr_accessor :glyph, :gloss, :level
+  class ParsedJlptRecord
+    attr_accessor :glyph, :level
 
     def initialize(*args)
       @glyph = args[0]
-      @gloss = self.class.split_gloss(args[2])
       @level = args[1]
-    end
-
-    class << self
-      def split_gloss(gloss_str)
-        gloss_str.split(/,/).map(&:strip)
-      end
     end
   end
 
-  class KankenDocument
+  class JlptDocument
     attr_reader :records
 
     def read(path)
       @records = CSV.foreach(path).map do |row|
-        ParsedKankenRecord.new(*row)
+        ParsedJlptRecord.new(*row)
       end
 
       @records.size.positive?

@@ -10,10 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_31_090422) do
+ActiveRecord::Schema.define(version: 2020_08_03_003713) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "jlpt_imports", force: :cascade do |t|
+    t.string "glyph", null: false
+    t.string "level", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
 
   create_table "kanjidic_import_meanings", force: :cascade do |t|
     t.string "glyph", null: false
