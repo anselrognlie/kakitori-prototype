@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
   root to: 'kanjis#index'
   get 'users/pick', to: 'users#pick', as: :pick_user
@@ -6,5 +8,6 @@ Rails.application.routes.draw do
   resources :users, only: %i[show edit update index create destroy]
   resources :kanjis, only: %i[index]
   get :error, to: 'pages#error'
+  get 'api/v1/wk_register/:token', to: 'wk#register'
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end
