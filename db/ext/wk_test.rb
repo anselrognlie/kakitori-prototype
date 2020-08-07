@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'httparty'
-require 'ostruct'
+require_relative '../../app/utilities/ostruct_ext'
 
 module KTL
   API_KEY = ENV['WK_API_KEY']
@@ -23,11 +23,10 @@ module KTL
 
   def query_user_data
     response = HTTParty.get("#{BASE_URL}user", { headers: make_header, format: :json })
-    subscription = response['data']['subscription']
-    OpenStruct.new(subscription)
+    OpenStruct.unpack_hash(response['data'])
   end
 
-  # rubocop: disable Metrics/MethodLength, Metrics/AbcSize
+  # rubocop: disable Metrics/MethodLength
   def query_subjects(max_level)
     done = false
     results = []
@@ -56,7 +55,7 @@ module KTL
 
     results
   end
-  # rubocop: enable Metrics/MethodLength, Metrics/AbcSize
+  # rubocop: enable Metrics/MethodLength
 
   def make_level_query(max_level)
     (1..max_level).to_a.join(',')
@@ -65,15 +64,25 @@ module KTL
   def main
     # puts ENV['DATASRC_CONFIG_URL']
     # puts ENV['WK_API_KEY']
-    level = query_user_data.max_level_granted
+
+    user = query_user_data
+    puts user
+
+    subscription = user.subscription
+    puts subscription
+
+    # level = subscription.max_level_granted
+
     # level = 60
     # puts "retrieving data up to level #{level}..."
     # levels = make_level_query(level)
     # puts levels
-    level_data = query_subjects(level)
-    level_data.each do |k|
-      puts "#{k.characters},#{k.level}"
-    end
+
+    # level_data = query_subjects(level)
+    # level_data.each do |k|
+    #   puts "#{k.characters},#{k.level}"
+    # end
+
     # puts level_data.to_json
   end
 end
