@@ -64,7 +64,7 @@ gem 'jquery-rails'
 gem 'jquery-turbolinks'
 group :development, :test do
   gem 'pry-rails'
-  gem 'rubocop'
+  gem 'rubocop', '<= 0.86'
 end
 
 group :development do
