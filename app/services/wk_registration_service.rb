@@ -1,21 +1,18 @@
 # frozen_string_literal: true
 
 class WkRegistrationService
-  def initialize(controller, api)
+  def initialize(controller, api, token)
     @controller = controller
     @api = api
+    @token = token
   end
 
-  # rubocop: disable Metrics/MethodLength
   def call
     # contact wk api using token (dep) to retrieve subscription settings
     user = @api.query_user_data
     subscription = user.subscription
     unless subscription.nil?
-      record = WkSubscription.new(username: user.username, token: @api.token,
-                                  active: subscription.active, type: subscription.type,
-                                  max_level: subscription.max_level_granted,
-                                  end_of_subscription: subscription.period_ends_at)
+      record = self.class.prepare_record(user, subscription, @token)
       if record.save
         @controller.render json: { status: :ok }, status_code: 200
         return
@@ -24,5 +21,16 @@ class WkRegistrationService
 
     @controller.render json: { error: {} }, status_code: 400
   end
-  # rubocop: enable Metrics/MethodLength
+
+  def self.prepare_record(user, subscription, token)
+    # do we already have an entry for the token?
+    record = WkSubscription.where(token: token).first
+    if record
+      record.update_from_subscription(user, subscription)
+    else
+      record = WkSubscription.make_from_subscription(token, user, subscription)
+    end
+
+    record
+  end
 end
