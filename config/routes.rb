@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  root to: 'kanjis#index'
+  root to: 'pages#home'
   get 'users/pick', to: 'users#pick', as: :pick_user
   get 'users/:id/select', to: 'users#select', as: :select_user
   resources :user_settings, only: []
