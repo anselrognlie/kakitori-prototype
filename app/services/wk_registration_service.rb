@@ -23,10 +23,10 @@ class WkRegistrationService
   end
 
   def self.prepare_record(user, subscription, token)
-    # do we already have an entry for the token?
-    record = WkSubscription.where(token: token).first
+    # do we already have a token?
+    record = WkSubscription.first
     if record
-      record.update_from_subscription(user, subscription)
+      record.update_from_subscription(token, user, subscription)
     else
       record = WkSubscription.make_from_subscription(token, user, subscription)
     end

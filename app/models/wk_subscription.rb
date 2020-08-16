@@ -3,7 +3,8 @@
 class WkSubscription < ApplicationRecord
   self.inheritance_column = 'not_sti'
 
-  def update_from_subscription(user, subscription)
+  def update_from_subscription(token, user, subscription)
+    self.token = token
     self.username = user.username
     self.active = subscription.active
     self.type = subscription.type
