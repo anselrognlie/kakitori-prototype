@@ -1,0 +1,10 @@
+<%= form_with url: settings_path, scope: :settings, method: :put do |f| %>
+<h1>Settings<h1>
+<h2>WaniKani Integration</h2>
+<div>
+<%= f.label :api_token %>
+<%= f.text_field :api_token %>
+</div>
+
+<%= f.submit %>
+<% end %>
