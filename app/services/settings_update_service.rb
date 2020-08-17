@@ -10,16 +10,12 @@ class SettingsUpdateService
 
   def call
     # did the api_key change?
-    p = api_key_params
-    api_key = p[:api_token]
-    api_key_orig = p[:api_token_orig]
+    load_params
 
-    curr_token = WkSubscription.first&.token
-
-    register_token(api_key) if api_key != api_key_orig && api_key != curr_token
-
-    if api_key == curr_token
+    if @api_key == @curr_token
       @controller.flash.now[:info] = 'Attempt to set key to current token ignored.'
+    elsif @api_key != @api_key_orig
+      register_token(@api_key)
     end
 
     @retrieval_service.call
@@ -41,6 +37,18 @@ class SettingsUpdateService
   end
 
   def api_key_params
-    params.require(:settings).permit(:api_token, :api_token_orig)
+    params
+      .require(:settings).permit(:api_token, :api_token_orig)
+      .merge(params.permit(:commit, :clear_token))
+  end
+
+  def load_params
+    p = api_key_params
+    @api_key_orig = p[:api_token_orig]
+    @do_commit = !p[:commit].nil?
+    @do_clear_token = !p[:clear_token].nil?
+    @curr_token = WkSubscription.first&.token
+
+    @api_key = @do_clear_token ? '' : p[:api_token]
   end
 end

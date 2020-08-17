@@ -25,6 +25,15 @@ form {
   width: 100%;
 }
 
+.clear-api {
+  display: flex;
+}
+
+.clear-api [type$=submit] {
+  width: 10em;
+  margin-left: 1em;
+}
+
 .form-field {
   margin-bottom: 1em;
 }

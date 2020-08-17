@@ -3,7 +3,7 @@
 <h2>WaniKani Integration</h2>
 <div class="form-field">
 <div><%= f.label :api_token %></div>
-<div><%= f.text_field :api_token, value: @api_token %></div>
+<div class="clear-api"><%= f.text_field :api_token, value: @api_token %><%= f.submit 'Clear Token', name: :clear_token %></div>
 <div class="details"><%= @subscription_info %></div>
 <%= f.hidden_field :api_token_orig, value: @api_token %>
 </div>
