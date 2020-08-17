@@ -14,7 +14,13 @@ class SettingsUpdateService
     api_key = p[:api_token]
     api_key_orig = p[:api_token_orig]
 
-    register_token(api_key) unless api_key == api_key_orig
+    curr_token = WkSubscription.first&.token
+
+    register_token(api_key) if api_key != api_key_orig && api_key != curr_token
+
+    if api_key == curr_token
+      @controller.flash.now[:info] = 'Attempt to set key to current token ignored.'
+    end
 
     @retrieval_service.call
   end
@@ -26,7 +32,7 @@ class SettingsUpdateService
     if @registration.register(api_key, api)
       @controller.flash.now[:success] = 'Updated'
     else
-      @controller.flash.now[:error] = 'Failed'
+      @controller.flash.now[:danger] = 'Failed'
     end
   end
 

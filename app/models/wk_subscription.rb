@@ -20,4 +20,10 @@ class WkSubscription < ApplicationRecord
       end_of_subscription: subscription.period_ends_at
     )
   end
+
+  def self.delete_all
+    WkSubscription.all.to_a.reduce(true) do |success, r|
+      success && r.delete
+    end
+  end
 end
