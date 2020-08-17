@@ -31,6 +31,6 @@ class AlertTypes
   end
 
   def self.all
-    %w[success warning error]
+    %w[success warning info danger]
   end
 end
