@@ -16,3 +16,20 @@
 @import "bootstrap";
 
 @import "**/*";
+
+form {
+  margin: 0 2em;
+}
+
+.form-field div > * {
+  width: 100%;
+}
+
+.form-field {
+  margin-bottom: 1em;
+}
+
+.form-field .details {
+  font-size: .7em;
+  font-style: italic;
+}

@@ -1,36 +1,27 @@
 # frozen_string_literal: true
 
 class WkRegistrationService
-  def initialize(controller, api, token)
+  def initialize(controller, registration, api_builder)
     @controller = controller
-    @api = api
-    @token = token
+    @registration = registration
+    @api_builder = api_builder
   end
 
   def call
-    # contact wk api using token (dep) to retrieve subscription settings
-    user = @api.query_user_data
-    subscription = user.subscription
-    unless subscription.nil?
-      record = self.class.prepare_record(user, subscription, @token)
-      if record.save
-        @controller.render json: { status: :ok }, status_code: 200
-        return
-      end
+    token = token_param
+    api = @api_builder.build(token)
+    if @registration.register(token, api)
+      @controller.render json: { status: :ok }, status_code: 200
+    else
+      @controller.render json: { error: {} }, status_code: 400
     end
-
-    @controller.render json: { error: {} }, status_code: 400
   end
 
-  def self.prepare_record(user, subscription, token)
-    # do we already have a token?
-    record = WkSubscription.first
-    if record
-      record.update_from_subscription(token, user, subscription)
-    else
-      record = WkSubscription.make_from_subscription(token, user, subscription)
-    end
+  def params
+    @controller.params
+  end
 
-    record
+  def token_param
+    params.require(:token)
   end
 end

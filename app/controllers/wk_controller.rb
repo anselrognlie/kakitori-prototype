@@ -2,14 +2,8 @@
 
 class WkController < ApplicationController
   def register
-    token = register_param
-    api = WkApi.new(token)
-    WkRegistrationService.new(self, api, token).call
-  end
-
-  private
-
-  def register_param
-    params.require(:token)
+    api_builder = WkApiBuilder.new
+    registration = WkRegistration.new
+    WkRegistrationService.new(self, registration, api_builder).call
   end
 end
