@@ -16,7 +16,7 @@ class SettingsUpdateService
       @controller.flash.now[:info] = 'Attempt to set key to current token ignored.'
     elsif @api_key != @api_key_orig
       register_token(@api_key)
-      WkLevelsImportJob.perform_later('some', 'arguments')
+      WkLevelsImportJob.perform_later
     end
 
     @retrieval_service.call
@@ -48,7 +48,7 @@ class SettingsUpdateService
     @api_key_orig = p[:api_token_orig]
     @do_commit = !p[:commit].nil?
     @do_clear_token = !p[:clear_token].nil?
-    @curr_token = WkSubscription.first&.token
+    @curr_token = WkSubscription.first&.token || ''
 
     @api_key = @do_clear_token ? '' : p[:api_token]
   end
