@@ -11,7 +11,7 @@ class WkRegistration
     return false if subscription.nil?
 
     record = self.class.prepare_record(user, subscription, token)
-    record.save
+    record.save ? record : nil
   end
 
   def self.unregister_token

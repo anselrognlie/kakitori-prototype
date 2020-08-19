@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 class SettingsUpdateService
-  def initialize(controller, registration, retrieval_service, api_builder)
+  def initialize(controller:, registration: nil, scheduler: nil,
+                 api_builder: nil, path_helpers: nil)
     @controller = controller
-    @registration = registration
-    @retrieval_service = retrieval_service
-    @api_builder = api_builder
+    @registration = registration || WkRegistration.new
+    @scheduler = scheduler || WkUpdateScheduler.new
+    @api_builder = api_builder || WkApiBuilder.new
+    @path_helpers = path_helpers || Rails.application.routes.url_helpers
   end
 
   def call
@@ -13,25 +15,15 @@ class SettingsUpdateService
     load_params
 
     if @api_key == @curr_token
-      @controller.flash.now[:info] = 'Attempt to set key to current token ignored.'
+      @controller.flash[:info] = 'Attempt to set key to current token ignored.'
     elsif @api_key != @api_key_orig
-      register_token(@api_key)
-      WkLevelsImportJob.perform_later
+      @scheduler.schedule(api_key: @api_key)
     end
 
-    @retrieval_service.call
+    @controller.redirect_to @path_helpers.settings_path
   end
 
   private
-
-  def register_token(api_key)
-    api = @api_builder.build(api_key)
-    if @registration.register(api_key, api)
-      @controller.flash.now[:success] = 'Updated'
-    else
-      @controller.flash.now[:danger] = 'Failed'
-    end
-  end
 
   def params
     @controller.params

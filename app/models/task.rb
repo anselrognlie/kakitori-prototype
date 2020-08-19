@@ -12,6 +12,16 @@ class Task < ApplicationRecord
     end
   end
 
+  def self.running?(task_type:)
+    task = Task.where(task_type: task_type).first
+    !task.nil?
+  end
+
+  def self.complete_single(task_type:)
+    task = Task.where(task_type: task_type).first
+    task&.complete_single
+  end
+
   def complete_single
     name = task_type
     return false unless destroy

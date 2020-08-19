@@ -4,7 +4,7 @@ class Lock < ApplicationRecord
   def self.try_lock(name:)
     Lock.create(name: name)
     true
-  rescue ActiveRecord::RecordInvalid
+  rescue ActiveRecord::RecordNotUnique
     false
   end
 
