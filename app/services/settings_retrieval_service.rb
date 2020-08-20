@@ -13,17 +13,12 @@ class SettingsRetrievalService
 
   def call
     @update_running = WkUpdateTask.running?
-
-    # get current subscription info
     @info = WkSubscription.first
-    return unless @info || @update_running
-
-    display_token = make_display_token
-    subscription_str = make_description
 
     ivars = {
-      :@api_token => display_token,
-      :@subscription_info => subscription_str
+      :@api_token => make_display_token,
+      :@details => make_description,
+      :@submit_enabled => make_enabled
     }
     @injector.inject_as_ivars(ivars, @controller)
   end
@@ -31,10 +26,18 @@ class SettingsRetrievalService
   private
 
   def make_display_token
-    @update_running ? RUNNING_TOKEN : "#{@info.token[0, 4]}#{'*' * (@info.token.length - 4)}"
+    return RUNNING_TOKEN if @update_running
+
+    @info ? "#{@info.token[0, 4]}#{'*' * (@info.token.length - 4)}" : ''
   end
 
   def make_description
-    @update_running ? RUNNING_DESCRIPTION : @serializer.to_s(@info)
+    return RUNNING_DESCRIPTION if @update_running
+
+    @info ? @serializer.to_s(@info) : ''
+  end
+
+  def make_enabled
+    !@update_running
   end
 end
