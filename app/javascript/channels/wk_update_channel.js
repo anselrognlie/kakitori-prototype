@@ -25,5 +25,5 @@ const wkUpdateChannel = consumer.subscriptions.create("WkUpdateChannel", {
 });
 
 export default () => {
-  return consumer.subscriptions.create("WkUpdateChannel");
+  return wkUpdateChannel;
 };
