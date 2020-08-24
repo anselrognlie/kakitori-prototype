@@ -1,3 +1,4 @@
 <%= render partial: 'form', locals: { api_token: @api_token,
                                       details: @details,
+                                      form_done: @submit_enabled,
                                       submit_disabled: !@submit_enabled } %>

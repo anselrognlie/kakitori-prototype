@@ -1,4 +1,7 @@
-<%= form_with url: settings_path, scope: :settings, method: :put do |f| %>
+<%= form_with(url: settings_path, scope: :settings, method: :put,
+  data: { controller: 'settings'  }
+) do |f| %>
+<input type='hidden' name='settings_form_done' value='<%= form_done %>'>
 <h1>Settings<h1>
 <h2>WaniKani Integration</h2>
 <div class="form-field">

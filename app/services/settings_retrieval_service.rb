@@ -15,11 +15,14 @@ class SettingsRetrievalService
     @update_running = WkUpdateTask.running?
     @info = WkSubscription.first
 
+    done = make_enabled
     ivars = {
       :@api_token => make_display_token,
       :@details => make_description,
-      :@submit_enabled => make_enabled
+      :@submit_enabled => done,
+      :@done => done
     }
+
     @injector.inject_as_ivars(ivars, @controller)
   end
 
