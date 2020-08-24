@@ -2,8 +2,7 @@
 
 class SettingsRetrievalService
   RUNNING_TOKEN = '*' * 24
-  RUNNING_DESCRIPTION = 'Subscription information is currently being updated.  ' \
-                        'Refresh to check status.'
+  RUNNING_DESCRIPTION = 'Subscription information is currently being updated.'
 
   def initialize(controller:, serializer: nil, injector: nil)
     @controller = controller
