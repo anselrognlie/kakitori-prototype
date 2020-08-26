@@ -1,7 +1,7 @@
-import consumer from "./consumer"
+import makeDelayedConsumer from "./delayed_consumer"
 import Settings from '../sitewide/settings';
 
-const wkUpdateChannel = consumer.subscriptions.create("WkUpdateChannel", {
+const wkUpdateChannel = makeDelayedConsumer("WkUpdateChannel", {
 
   connected() {
     // Called when the subscription is ready for use on the server
@@ -12,7 +12,6 @@ const wkUpdateChannel = consumer.subscriptions.create("WkUpdateChannel", {
   },
 
   received(data) {
-    console.log({data})
     // Called when there's incoming data on the websocket for this channel
     const done = data.hasOwnProperty('done') ? data.done : false;
     if (! done) { return; }
