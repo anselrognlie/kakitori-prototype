@@ -2,7 +2,7 @@
   "name": "kakitori",
   "private": true,
   "dependencies": {
-    "node-forge": "^0.10.0",
+    "node-forge": "^1.0.0",
     "@rails/actioncable": "^6.0.0",
     "@rails/activestorage": "^6.0.0",
     "@rails/ujs": "^6.0.0",
